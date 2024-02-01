@@ -186,7 +186,7 @@ const createOrder = async (session) => {
   const order = await orderModel.create({
     user: User._id,
     cartItems: cart.cartItems,
-    shippingAddress: shippingAddress,
+    shippingAddress,
     totalOrderPrice: orderPrice,
     isPaid: true,
     paidAt: Date.now(),

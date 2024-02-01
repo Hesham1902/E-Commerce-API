@@ -24,13 +24,13 @@ app.options("*", cors());
 
 app.use(compression());
 
+dbConnection();
+
 app.get(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
   webhookCheckout
 );
-
-dbConnection();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
@@ -43,6 +43,8 @@ if (process.env.NODE_ENV === "development") {
 
 //Mount Routes
 mountRoutes(app);
+
+
 
 //handle unhandled routes and send error to the error handling middleware
 app.all("*", (req, res, next) => {

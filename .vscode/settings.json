@@ -1,0 +1,4 @@
+{
+  "separators.enabledSymbols": ["Classes", "Methods"],
+  "typescript.format.enable": false
+}

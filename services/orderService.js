@@ -3,7 +3,9 @@ const asyncHandler = require("express-async-handler");
 
 const ApiError = require("../utils/apiError");
 const factory = require("./handlersFactory");
+
 const cartModel = require("../models/cartModel");
+const userModel = require("../models/userModel");
 const productModel = require("../models/productModel");
 const orderModel = require("../models/orderModel");
 
@@ -171,6 +173,16 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
   res.status(200).json({ status: "success", session });
 });
 
+const createOrder = async (session) => {
+  const cartId = session.client_reference_id;
+  const shippindAddress = session.metadata;
+  const orderPrice = session.display_items[0].amount / 100;
+  console.log(orderPrice);
+  
+  const cart = await cartModel.findById(cartId);
+  const User = await userModel.findOne({ email: session.customer_email });
+};
+
 exports.webhookCheckout = asyncHandler(async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
@@ -186,6 +198,6 @@ exports.webhookCheckout = asyncHandler(async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   if (event.type === "checkout.session.completed") {
-    console.log("Create order ....");
+    createOrder(event.data.object);
   }
 });

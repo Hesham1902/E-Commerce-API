@@ -26,7 +26,7 @@ app.use(compression());
 
 dbConnection();
 
-app.get(
+app.post(
   "/webhook-checkout",
   express.raw({ type: "application/json" }),
   webhookCheckout

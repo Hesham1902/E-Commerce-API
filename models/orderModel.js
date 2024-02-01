@@ -17,10 +17,10 @@ const orderSchema = mongoose.Schema(
       },
     ],
     shippingAddress: {
-      type: String,
-      Phone: Number,
-      postalCode: Number,
+      details: String,
+      phone: String,
       city: String,
+      postalCode: String,
     },
     taxPrice: {
       type: Number,

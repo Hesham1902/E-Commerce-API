@@ -175,12 +175,36 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
 
 const createOrder = async (session) => {
   const cartId = session.client_reference_id;
-  const shippindAddress = session.metadata;
+  const shippingAddress = session.metadata;
   const orderPrice = session.display_items[0].amount / 100;
   console.log(orderPrice);
-  
+
   const cart = await cartModel.findById(cartId);
   const User = await userModel.findOne({ email: session.customer_email });
+
+  //Create order
+  const order = await orderModel.create({
+    user: User._id,
+    cartItems: cart.cartItems,
+    shippingAddress: shippingAddress,
+    totalOrderPrice: orderPrice,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethod: "card",
+  });
+  if (order) {
+    // 1) better time complexity
+
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.Quantity, sold: +item.Quantity } },
+      },
+    }));
+    await productModel.bulkWrite(bulkOption, {});
+    // Clear the cart
+    await cartModel.findByIdAndDelete(cartId);
+  }
 };
 
 exports.webhookCheckout = asyncHandler(async (req, res) => {
@@ -200,4 +224,5 @@ exports.webhookCheckout = asyncHandler(async (req, res) => {
   if (event.type === "checkout.session.completed") {
     createOrder(event.data.object);
   }
+  res.status(201).json({ recieved: "true" });
 });

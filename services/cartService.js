@@ -149,7 +149,7 @@ exports.applyCoupon = asyncHandler(async (req, res, next) => {
     (totalPrice * coupon.discount) / 100
   ).toFixed(2);
   cart.totalPriceAfterDiscount = totalPriceAfterDiscount;
-
+  cart.appliedCoupon = req.body.coupon;
   await cart.save();
 
   res.status(200).json({

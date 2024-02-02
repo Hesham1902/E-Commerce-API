@@ -137,10 +137,21 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
       new ApiError(`Cart not found with id ${req.params.cartId}`, 404)
     );
   }
-  // const cartPrice = cart.totalPriceAfterDiscount
-  //   ? cart.totalPriceAfterDiscount
-  //   : cart.totalCartPrice;
-
+  let couponDiscount;
+  if (cart.totalPriceAfterDiscount) {
+    const { appliedCoupon } = cart;
+    const discountAmount = cart.totalCartPrice - cart.totalPriceAfterDiscount;
+    couponDiscount = {
+      price_data: {
+        currency: "egp",
+        product_data: {
+          name: `Coupon Discount (${appliedCoupon})`,
+        },
+        unit_amount: -discountAmount * 100, // Assuming discountedAmount is in the smallest currency unit (e.g., cents)
+      },
+      quantity: 1,
+    };
+  }
   const lineItems = cart.cartItems.map(async (item) => {
     const product = await productModel.findById(item.product);
     return {
@@ -155,13 +166,6 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
       quantity: item.Quantity,
     };
   });
-  let totalOrderPrice = cart.totalPriceAfterDiscount
-    ? cart.totalPriceAfterDiscount
-    : cart.totalCartPrice;
-
-  totalOrderPrice = totalOrderPrice + taxPrice + shippingPrice;
-
-  console.log(totalOrderPrice);
 
   const resolvedLineItems = await Promise.all(lineItems);
   console.log(resolvedLineItems);
@@ -186,6 +190,7 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
         },
         quantity: 1,
       },
+      couponDiscount,
     ],
     mode: "payment",
     success_url: `${req.protocol}://${req.get("host")}/orders`,

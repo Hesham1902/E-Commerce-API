@@ -79,7 +79,7 @@ exports.createFilterObj = (req, res, next) => {
   req.filterObj = filterObj;
   next();
 };
-  
+
 // @desc     Get All cash orders
 // @route    GET api/v1/orders
 // @access   Protected/Admin-Manager-User
@@ -153,7 +153,9 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
           currency: "egp",
           product_data: {
             name: req.user.name,
-            description: `Applied Coupon ${cart.appliedCoupon}`,
+            description: cart.appliedCoupon
+              ? `Applied Coupon ${cart.appliedCoupon}`
+              : "No coupon applied",
           },
         },
         quantity: 1,
@@ -192,7 +194,7 @@ const createOrder = async (session) => {
     soldAndQuantityUpdate(cart);
   }
   // Clear the cart
-  await cartModel.findByIdAndDelete(cart._id);
+  await cartModel.findByIdAndDelete(cartId);
 };
 
 // @desc    This webhook will run when stripe payment success paid

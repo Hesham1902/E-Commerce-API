@@ -128,8 +128,8 @@ exports.updateOrderToPaid = asyncHandler(async (req, res, next) => {
 
 exports.checkoutSession = asyncHandler(async (req, res, next) => {
   // App setting
-  const taxPrice = 50;
-  const shippingPrice = 25;
+  const taxPrice = 0;
+  const shippingPrice = 0;
 
   const cart = await cartModel.findById(req.params.cartId);
   if (!cart) {

@@ -137,60 +137,25 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
       new ApiError(`Cart not found with id ${req.params.cartId}`, 404)
     );
   }
-  let couponDiscount;
-  if (cart.totalPriceAfterDiscount) {
-    const { appliedCoupon } = cart;
-    const discountAmount = cart.totalCartPrice - cart.totalPriceAfterDiscount;
-    couponDiscount = {
-      price_data: {
-        currency: "egp",
-        product_data: {
-          name: `Coupon Discount (${appliedCoupon})`,
-        },
-        unit_amount: -discountAmount * 100, // Assuming discountedAmount is in the smallest currency unit (e.g., cents)
-      },
-      quantity: 1,
-    };
-  }
-  const lineItems = cart.cartItems.map(async (item) => {
-    const product = await productModel.findById(item.product);
-    return {
-      price_data: {
-        unit_amount: item.price * 100, // Assuming price is in the smallest currency unit (e.g., cents)
-        currency: "egp",
-        product_data: {
-          name: product.title,
-          description: item.color,
-        },
-      },
-      quantity: item.Quantity,
-    };
-  });
 
-  const resolvedLineItems = await Promise.all(lineItems);
-  console.log(resolvedLineItems);
-
+  let totalOrderPrice = cart.totalPriceAfterDiscount
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+  totalOrderPrice += shippingPrice + taxPrice;
   // create stripe checkout session
   const session = await stripe.checkout.sessions.create({
     line_items: [
-      ...resolvedLineItems,
       {
         price_data: {
-          unit_amount: taxPrice * 100,
+          unit_amount: totalOrderPrice * 100, // Assuming price is in the smallest currency unit (e.g., cents)
           currency: "egp",
-          product_data: { name: "Tax" },
+          product_data: {
+            name: req.user.name,
+            description: `Applied Coupon ${cart.appliedCoupon}`,
+          },
         },
         quantity: 1,
       },
-      {
-        price_data: {
-          unit_amount: shippingPrice * 100,
-          currency: "egp",
-          product_data: { name: "Shipping" },
-        },
-        quantity: 1,
-      },
-      couponDiscount,
     ],
     mode: "payment",
     success_url: `${req.protocol}://${req.get("host")}/orders`,

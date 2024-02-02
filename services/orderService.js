@@ -128,8 +128,8 @@ exports.updateOrderToPaid = asyncHandler(async (req, res, next) => {
 
 exports.checkoutSession = asyncHandler(async (req, res, next) => {
   // App setting
-  const taxPrice = 0;
-  const shippingPrice = 0;
+  const taxPrice = 50;
+  const shippingPrice = 25;
 
   const cart = await cartModel.findById(req.params.cartId);
   if (!cart) {
@@ -142,11 +142,10 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
   //   : cart.totalCartPrice;
 
   const lineItems = cart.cartItems.map(async (item) => {
-    const totalOrderPrice = item.price + taxPrice + shippingPrice;
     const product = await productModel.findById(item.product);
     return {
       price_data: {
-        unit_amount: totalOrderPrice * 100, // Assuming price is in the smallest currency unit (e.g., cents)
+        unit_amount: item.price * 100, // Assuming price is in the smallest currency unit (e.g., cents)
         currency: "egp",
         product_data: {
           name: product.title,
@@ -156,12 +155,38 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
       quantity: item.Quantity,
     };
   });
+  let totalOrderPrice = cart.totalPriceAfterDiscount
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+
+  totalOrderPrice = totalOrderPrice + taxPrice + shippingPrice;
+
+  console.log(totalOrderPrice);
+
   const resolvedLineItems = await Promise.all(lineItems);
   console.log(resolvedLineItems);
 
   // create stripe checkout session
   const session = await stripe.checkout.sessions.create({
-    line_items: resolvedLineItems,
+    line_items: [
+      ...resolvedLineItems,
+      {
+        price_data: {
+          unit_amount: taxPrice * 100,
+          currency: "egp",
+          product_data: { name: "Tax" },
+        },
+        quantity: 1,
+      },
+      {
+        price_data: {
+          unit_amount: shippingPrice * 100,
+          currency: "egp",
+          product_data: { name: "Shipping" },
+        },
+        quantity: 1,
+      },
+    ],
     mode: "payment",
     success_url: `${req.protocol}://${req.get("host")}/orders`,
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
@@ -177,8 +202,6 @@ const createOrder = async (session) => {
   const cartId = session.client_reference_id;
   const shippingAddress = session.metadata;
   const orderPrice = session.amount_total / 100;
-  console.log(orderPrice);
-
   const cart = await cartModel.findById(cartId);
   const User = await userModel.findOne({ email: session.customer_email });
 

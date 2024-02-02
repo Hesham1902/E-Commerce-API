@@ -9,14 +9,32 @@ const userModel = require("../models/userModel");
 const productModel = require("../models/productModel");
 const orderModel = require("../models/orderModel");
 
+const calcTotalPrice = (cart) => {
+  // App Settings
+
+  const taxPrice = 0;
+  const shippingPrice = 0;
+  let totalOrderPrice = cart.totalPriceAfterDiscount
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+  totalOrderPrice += shippingPrice + taxPrice;
+  return totalOrderPrice;
+};
+
+const soldAndQuantityUpdate = async (cart) => {
+  const bulkOption = cart.cartItems.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { quantity: -item.Quantity, sold: +item.Quantity } },
+    },
+  }));
+  await productModel.bulkWrite(bulkOption, {});
+};
+
 // @desc     Create cash order
 // @route    POST api/v1/orders/cartId
 // @access   Protected
 exports.createCashOrder = asyncHandler(async (req, res, next) => {
-  // App setting
-  const taxPrice = 0;
-  const shippingPrice = 0;
-
   const cart = await cartModel.findById(req.params.cartId);
   if (!cart) {
     return next(
@@ -24,10 +42,7 @@ exports.createCashOrder = asyncHandler(async (req, res, next) => {
     );
   }
 
-  let totalOrderPrice = cart.totalPriceAfterDiscount
-    ? cart.totalPriceAfterDiscount
-    : cart.totalCartPrice;
-  totalOrderPrice += taxPrice + shippingPrice;
+  const totalOrderPrice = calcTotalPrice(cart);
 
   const order = await orderModel.create({
     user: req.user._id,
@@ -39,13 +54,7 @@ exports.createCashOrder = asyncHandler(async (req, res, next) => {
   if (order) {
     // 1) better time complexity
 
-    const bulkOption = cart.cartItems.map((item) => ({
-      updateOne: {
-        filter: { _id: item.product },
-        update: { $inc: { quantity: -item.Quantity, sold: +item.Quantity } },
-      },
-    }));
-    await productModel.bulkWrite(bulkOption, {});
+    soldAndQuantityUpdate(cart);
 
     // 2) bad time complexity
 
@@ -59,7 +68,6 @@ exports.createCashOrder = asyncHandler(async (req, res, next) => {
 
   //4) clear the cart
   await cartModel.findByIdAndDelete(req.params.cartId);
-
   res.status(201).json({ status: "success", data: order });
 });
 
@@ -71,7 +79,7 @@ exports.createFilterObj = (req, res, next) => {
   req.filterObj = filterObj;
   next();
 };
-
+  
 // @desc     Get All cash orders
 // @route    GET api/v1/orders
 // @access   Protected/Admin-Manager-User
@@ -128,8 +136,6 @@ exports.updateOrderToPaid = asyncHandler(async (req, res, next) => {
 
 exports.checkoutSession = asyncHandler(async (req, res, next) => {
   // App setting
-  const taxPrice = 0;
-  const shippingPrice = 0;
 
   const cart = await cartModel.findById(req.params.cartId);
   if (!cart) {
@@ -137,11 +143,7 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
       new ApiError(`Cart not found with id ${req.params.cartId}`, 404)
     );
   }
-
-  let totalOrderPrice = cart.totalPriceAfterDiscount
-    ? cart.totalPriceAfterDiscount
-    : cart.totalCartPrice;
-  totalOrderPrice += shippingPrice + taxPrice;
+  const totalOrderPrice = calcTotalPrice(cart);
   // create stripe checkout session
   const session = await stripe.checkout.sessions.create({
     line_items: [
@@ -187,17 +189,10 @@ const createOrder = async (session) => {
   });
   if (order) {
     // 1) better time complexity
-
-    const bulkOption = cart.cartItems.map((item) => ({
-      updateOne: {
-        filter: { _id: item.product },
-        update: { $inc: { quantity: -item.Quantity, sold: +item.Quantity } },
-      },
-    }));
-    await productModel.bulkWrite(bulkOption, {});
-    // Clear the cart
-    await cartModel.findByIdAndDelete(cartId);
+    soldAndQuantityUpdate(cart);
   }
+  // Clear the cart
+  await cartModel.findByIdAndDelete(cart._id);
 };
 
 // @desc    This webhook will run when stripe payment success paid

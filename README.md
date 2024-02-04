@@ -13,7 +13,7 @@ To access certain routes, authentication is required. Obtain an access token by 
 #### Signup (Enter your name, email, Password and confirmPassword in body)
 - Endpoint: `{{base_url}}/api/v1/auth/signup`
 - Method: POST
-- 
+  
 #### Login (Enter your email and password in body)
 - Endpoint: `{{base_url}}/api/v1/auth/login`
 - Method: POST

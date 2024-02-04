@@ -104,15 +104,15 @@ To access certain routes, authentication is required. Obtain an access token by 
 - Endpoint: `{{base_url}}/api/v1/products/:id`
 - Method: GET
 
-#### Create new Produc
+#### Create new Product
 - Endpoint: `{{base_url}}/api/v1/products`
 - Method: POST
 
-#### Update Produc by ID
+#### Update Product by ID
 - Endpoint: `{{base_url}}/api/v1/products/:id`
 - Method: PUT
 
-#### Delete Produc by ID
+#### Delete Product by ID
 - Endpoint: `{{base_url}}/api/v1/products/:id`
 - Method: DELETE
 
@@ -120,17 +120,100 @@ To access certain routes, authentication is required. Obtain an access token by 
 
 ### Carts
 
+#### Adding product to cart by ID
+- body: productId, color
+- Endpoint: `{{base_url}}/api/v1/carts/:id`
+- Method: POST
+
+#### Delete specific item from cart items
+- Endpoint: `{{base_url}}/api/v1/carts/:id`
+- Method: DELETE
+
+#### Apply coupon on cart
+- body : { name: "Coupon Name" }
+- Endpoint: `{{base_url}}/api/v1/carts/applyCoupon`
+- Method: PUT
+
+#### Get logged user cart
+- Endpoint: `{{base_url}}/api/v1/carts`
+- Method: GET
+
+#### Update cart item quantity
+- body: quantity
+- Endpoint: `{{base_url}}/api/v1/carts/:id`
+- Method: PUT
+
 ...
 
 ### Reviews
 
+#### Get All Reviews
+- Endpoint: `{{base_url}}/api/v1/reviews`
+- Method: GET
+
+#### Get Review by ID
+- Endpoint: `{{base_url}}/api/v1/reviews/:id`
+- Method: GET
+
+#### Create new Review
+- Endpoint: `{{base_url}}/api/v1/reviews`
+- Method: POST
+
+#### Update Review by ID
+- Endpoint: `{{base_url}}/api/v1/reviews/:id`
+- Method: PUT
+
+#### Delete Review by ID
+- Endpoint: `{{base_url}}/api/v1/reviews/:id`
+- Method: DELETE
+  
+#### Nested Routes:
+
+##### Get reviews for specific product 
+- Endpoint: `{{base_url}}/api/v1/reviews/:id`
+- Method: GET
+  
+##### Create reviews for specific product 
+- Endpoint: `{{base_url}}/api/v1/products/:id/reviews`
+- Method: GET
+  
+##### Create review for specific product 
+- Endpoint: `{{base_url}}/api/v1/products/:id/reviews`
+- Method: POST
+  
+##### Get specific review for a Specific product 
+- Endpoint: `{{base_url}}/api/v1/products/:productid/reviews/:reviewId`
+- Method: GET
+
 ...
 
-### Users
+### Users (Must be ADMIN or Manager)
+
+#### Get All Users
+- Endpoint: `{{base_url}}/api/v1/users`
+- Method: GET
+
+#### Get User by ID
+- Endpoint: `{{base_url}}/api/v1/users/:id`
+- Method: GET
+
+#### Create new User
+- Endpoint: `{{base_url}}/api/v1/users`
+- Method: POST
+
+#### Update User by ID
+- Endpoint: `{{base_url}}/api/v1/users/:id`
+- Method: PUT
+
+#### Delete User by ID
+- Endpoint: `{{base_url}}/api/v1/users/:id`
+- Method: DELETE
+
 
 ...
 
 ### Coupons
+
 
 ...
 

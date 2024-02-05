@@ -2,6 +2,40 @@
 
 Welcome to the documentation for the E-Commerce API. This API provides endpoints to manage categories, sub-categories, brands, products, carts, reviews, users, coupons, and orders.
 
+# Table of Contents
+
+- [Base URL](#base-url)
+- [Authentication](#authentication)
+  - [Signup](#signup)
+  - [Login](#login)
+  - [Forgot Password](#forgot-password)
+  - [Verify Reset Code](#verify-reset-code)
+  - [Reset Password](#reset-password)
+- [Routes](#routes)
+  - [Logged user](#logged-user)
+    - [Get Logged User](#get-logged-user)
+    - [Update Password](#update-password)
+    - [Update Logged user data](#update-logged-user-data)
+    - [Deactivate Logged User](#deactivate-logged-user)
+    - [Activate Logged User](#activate-logged-user)
+  - [Categories](#categories)
+    - [Get All Categories](#get-all-categories)
+    - [Get Category by ID](#get-category-by-id)
+    - [Create new Category](#create-new-category)
+    - [Update Category by ID](#update-category-by-id)
+    - [Delete Category by ID](#delete-category-by-id)
+      - [Nested Routes](#nested-routes)
+        - [Get SubCategories for a Specific Category](#get-subcategories-for-a-specific-category)
+        - [Create subCategory for specific category](#create-subcategory-for-specific-category)
+  - [Sub Categories](#sub-categories)
+    - [Get All SubCategories](#get-all-subcategories)
+    - [Get SubCategories by ID](#get-subcategories-by-id)
+    - [Create new SubCategories](#create-new-subcategories)
+    - [Update SubCategories by ID](#update-subcategories-by-id)
+    - [Delete SubCategories by ID](#delete-subcategories-by-id)
+   
+...
+
 ## Base URL
 
 The base URL for all API endpoints is: `{{base_url}} ==> https://good-perch.cyclic.app`

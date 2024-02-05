@@ -10,15 +10,59 @@ The base URL for all API endpoints is: `{{base_url}} ==> https://good-perch.cycl
 
 To access certain routes, authentication is required. Obtain an access token by following the authentication process.
 
-#### Signup (Enter your name, email, Password and confirmPassword in body)
+#### Signup
+- body: name,email,Password,confirmPassword
 - Endpoint: `{{base_url}}/api/v1/auth/signup`
 - Method: POST
   
-#### Login (Enter your email and password in body)
+#### Login
+- body: email,Password
 - Endpoint: `{{base_url}}/api/v1/auth/login`
 - Method: POST
+- 
+#### Forgot Password
+- body: email
+- Endpoint: `{{base_url}}/api/v1/auth/forgotPassword`
+- Method: POST
+
+#### Verify Reset Code
+- body: resetCode
+- Endpoint: `{{base_url}}/api/v1/auth/verifyResetCode`
+- Method: POST
+
+#### Reset password
+- body: email,newPassword
+- Endpoint: `{{base_url}}/api/v1/auth/resetPassword`
+- Method: PUT
+
 
 ## Routes
+
+### Logged user
+
+#### Get Logged User
+- Endpoint: `{{base_url}}/api/v1/users/getMe`
+- Method: GET
+
+#### Update Password
+- body: currentPassword,password,confirmNewPassword
+- Endpoint: `{{base_url}}/api/v1/users/changeMyPassword`
+- Method: PUT
+
+#### Update Logged user data
+- body: name,email,phone
+- Endpoint: `{{base_url}}/api/v1/users/updateMe`
+- Method: PUT
+
+#### Deactivate Logged User
+- Endpoint: `{{base_url}}/api/v1/users/deactivateMe`
+- Method: DETETE
+
+#### activate Logged User
+- Endpoint: `{{base_url}}/api/v1/users/activateMe`
+- Method: PUT
+
+...
 
 ### Categories
 
@@ -42,8 +86,17 @@ To access certain routes, authentication is required. Obtain an access token by 
 - Endpoint: `{{base_url}}/api/v1/categories/:id`
 - Method: DELETE
   
-...
+  #### Nested Routes:
 
+##### Get SubCategories for a Specific Category 
+- Endpoint: `{{base_url}}/api/v1/categories/:categoryId/subcategories`
+- Method: GET
+  
+##### Create subCategory for specific category 
+- Endpoint: `{{base_url}}/api/v1/categories/:categoryId/subcategories`
+- Method: POST
+
+...
 
 ### Sub Categories
 
@@ -68,7 +121,6 @@ To access certain routes, authentication is required. Obtain an access token by 
 - Method: DELETE
   
 ...
-
 
 ### Brands
 
@@ -118,15 +170,19 @@ To access certain routes, authentication is required. Obtain an access token by 
 
 ...
 
-### Carts
+### Carts  (Must be logged)
 
-#### Adding product to cart by ID
+#### Adding product to cart
 - body: productId, color
 - Endpoint: `{{base_url}}/api/v1/carts/:id`
 - Method: POST
 
 #### Delete specific item from cart items
 - Endpoint: `{{base_url}}/api/v1/carts/:id`
+- Method: DELETE
+
+#### Clear cart for logged user
+- Endpoint: `{{base_url}}/api/v1/carts`
 - Method: DELETE
 
 #### Apply coupon on cart
@@ -205,21 +261,115 @@ To access certain routes, authentication is required. Obtain an access token by 
 - Endpoint: `{{base_url}}/api/v1/users/:id`
 - Method: PUT
 
+#### Update user password with data
+- body: currentPassword,password,confirmNewPassword
+- Endpoint: `{{base_url}}/api/v1/users/changePassword/:id`
+- Method: PUT
+
+
+#### update logged user data (can accessed by user)
+- body: name,email,phone
+- Endpoint: `{{base_url}}/api/v1/users/updateMe`
+- Method: PUT
+
 #### Delete User by ID
 - Endpoint: `{{base_url}}/api/v1/users/:id`
 - Method: DELETE
-
 
 ...
 
 ### Coupons
 
+#### Get All Coupons
+- Endpoint: `{{base_url}}/api/v1/coupons`
+- Method: GET
+
+#### Get Coupon by ID
+- Endpoint: `{{base_url}}/api/v1/coupons/:id`
+- Method: GET
+
+#### Create new Coupon
+- Endpoint: `{{base_url}}/api/v1/coupons`
+- Method: POST
+
+#### Update Coupon by ID
+- Endpoint: `{{base_url}}/api/v1/coupons/:id`
+- Method: PUT
+
+#### Delete Coupon by ID
+- Endpoint: `{{base_url}}/api/v1/coupons/:id`
+- Method: DELETE
+
+...
+
+### Wishlist
+
+#### Add product to wishlist
+- body: productId
+- Endpoint: `{{base_url}}/api/v1/wishlist`
+- Method: POST
+
+#### Get Logged user wishlist
+- Endpoint: `{{base_url}}/api/v1/wishlist`
+- Method: GET
+
+#### Remove product from wishlist
+- Endpoint: `{{base_url}}/api/v1/wishlist/:id`
+- Method: DELETE
 
 ...
 
 ### Orders
 
+#### Create cash order
+- body: shippingAddress
+- Endpoint: `{{base_url}}/api/v1/orders/:cartId`
+- Method: POST
+
+#### Get All orders for logged User
+- Endpoint: `{{base_url}}/api/v1/orders`
+- Method: GET
+
+#### Get specific order by Id (must be yours)
+- Endpoint: `{{base_url}}/api/v1/orders/:orderId`
+- Method: GET  
+
+#### Get checkout session for card payment
+- Endpoint: `{{base_url}}/api/v1/orders/checkout-session/cartId`
+- Method: GET
+
+#### update paid status (Admin)
+- Endpoint: `{{base_url}}/api/v1/orders/orderId/pay`
+- Method: PUT
+
+#### update deliver status (Admin)
+- Endpoint: `{{base_url}}/api/v1/orders/orderId/deliver`
+- Method: PUT
+
 ...
+
+### Addresses
+
+#### Add Address
+- body: alias,details,phone,city,postalCode
+- Endpoint: `{{base_url}}/api/v1/addresses`
+- Method: POST
+
+#### Update Address
+- body: alias,details,phone,city,postalCode
+- Endpoint: `{{base_url}}/api/v1/addresses/:addressId`
+- Method: PUT
+
+  #### Remove address from addresses list
+- Endpoint: `{{base_url}}/api/v1/addresses/:addressId`
+- Method: DELETE
+
+  #### Get Logged user addresses
+- Endpoint: `{{base_url}}/api/v1/addresses`
+- Method: GET
+
+...
+
 
 ## Query Parameters
 

@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>E-Commerce API Documentationd</h1>
+  <h1>E-Commerce API Documentation</h1>
   <p>Welcome to the documentation for the E-Commerce API. This API provides endpoints to manage categories, sub-categories, brands, products, carts, reviews, users, coupons, and orders.
 .</p>
       <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="nodejs" />
